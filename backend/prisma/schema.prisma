@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id             Int            @id @default(autoincrement())
+  createdAt      DateTime       @default(now())
+  level          Int @default(0)
+  friends      Int[] 
+  blocked     Int[]
+  email                String   @unique
+  username             String   @unique
+  originalUsername String
+  name                 String
+  avatar               String
+  campus               String
+  status               String
+  WonGames            Int
+  LostGames            Int
+  is_otp_enabled       Boolean  @default(false)
+  is_profile_completed Boolean  @default(false)
+  is_otp_validated     Boolean  @default(false)
+  otp_secret           String?
+  achievements String[]
+}
+
+model game {
+  id Int    @id @default(autoincrement())
+  player_one_id  Int
+  player_two_id Int
+  player_one_score Int
+  player_two_score Int
+  id_winer Int
+  status String
+  createdAt   DateTime  @default(now())
+}
+
+
+model channel {
+  id			Int	@id @default(autoincrement())
+  createdAt		DateTime @default(now())
+  ownerId		Int
+  name			String @unique
+  privacy		String
+  password		String?
+  description	String
+  banned		Int[]
+
+  members		channelMember[] @relation("channelMembers")
+}
+
+model channelMember {
+  id		Int @id @default(autoincrement())
+  role		String
+  userId	Int
+  isMuted	Boolean @default(false)
+
+  channelId	Int?
+  inChannel	channel? @relation("channelMembers", fields: [channelId], references: [id])
+}
+
+model channelMessage {
+	id			Int	@id @default(autoincrement())
+	createdAt	DateTime @default(now())
+	channelId	Int
+	content		String
+	senderId	Int
+	receivers	Int[]
+}
+
+model messageData {
+	id						String @unique
+	conversationId			String
+	sender        Int
+	receiver				Int
+	content					String
+	lastMessageCreatedAt	DateTime @default(now())
+}
+
+model conversation {
+	id						        String @unique
+	firstMember				    Int
+	secondMember			    Int
+	lastMessageContent		String?
+	lastMessageCreatedAt	DateTime?
+}
+
+model notification {
+  id			String @unique
+  conversationId	String? @default("")
+  type		String
+  senderId	Int
+  receiverId	Int
+  createdAt	DateTime @default(now())
+}
+
